@@ -1,5 +1,8 @@
 # testinggrounds-tauri-calculator
 
+# work in progress
+
+
 ## Project setup
 ```
 npm install
