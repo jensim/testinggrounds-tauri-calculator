@@ -25,15 +25,14 @@ jobs:
 #            PKG: src-tauri/target/release/bundle/dmg/calculator_*_x64.dmg
     steps:
       - uses: actions/checkout@v2
-      - name: Cache multiple paths
+      - name: Cargo cache
         uses: actions/cache@v2
         with:
           path: |
-            **/node_modules
             ~/.cargo/registry
             ~/.cargo/git
             src-tauri/target
-          key: ${{ matrix.os }}-${{ hashFiles('**/lockfiles') }}
+          key: ${{ matrix.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -60,7 +59,7 @@ jobs:
       - name: Bundle
         run: npm run tauri:build
       - name: Zip package
-        run: zip -9 my-artifact.zip "${{matrix.PKG}}"
+        run: zip -9 my-artifact.zip ${{matrix.PKG}}
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
