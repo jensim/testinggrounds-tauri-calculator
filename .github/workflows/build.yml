@@ -16,12 +16,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ macos-latest, ubuntu-latest ]
+        os: [ macos-latest ]
+#        os: [ macos-latest, ubuntu-latest ]
         include:
           - os: macos-latest
             PKG: src-tauri/target/release/bundle/dmg/calculator_*_x64.dmg
-          - os: ubuntu-latest
-            PKG: src-tauri/target/release/bundle/dmg/calculator_*_x64.dmg
+#          - os: ubuntu-latest
+#            PKG: src-tauri/target/release/bundle/dmg/calculator_*_x64.dmg
     steps:
       - uses: actions/checkout@v2
       - name: Cache multiple paths
