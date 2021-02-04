@@ -32,7 +32,7 @@ jobs:
             src-tauri/target
           key: ${{ matrix.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
       - name: Install ubuntu packages
-        if: ${{matrix.os}} == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu-latest'
         run: |
           sudo apt update && sudo apt install libwebkit2gtk-4.0-dev \
             build-essential \
