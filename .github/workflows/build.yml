@@ -51,7 +51,7 @@ jobs:
         with:
           crate: tauri-bundler
       - name: Bundle
-        run: npm run tauri build
+        run: npm run tauri:build
       - name: Zip
         run: zip -9 my-artifact.zip ${PKG}
       - name: Create Release
