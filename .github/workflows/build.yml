@@ -29,6 +29,7 @@ jobs:
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
+          toolchain: stable
           components: rustfmt, clippy
       - name: Rust lint
         run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
