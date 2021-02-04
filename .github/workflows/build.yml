@@ -13,24 +13,30 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ['ubuntu-latest']
     steps:
       - uses: actions/checkout@v2
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
-          toolchain: stable
-          components: rustfmt, clippy, tauri-bundler
+          components: rustfmt, clippy
       - name: Rust lint
         run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
+      - name: Rust Clippy
+        run: cargo clippy --manifest-path src-tauri/Cargo.toml
       - name: Rust build
         run: cargo build --manifest-path src-tauri/Cargo.toml
       - name: Rust test
         run: cargo test --manifest-path src-tauri/Cargo.toml
-      - name: Install dependencies
+      - name: NPM Install dependencies
         run: npm install
-      - name: Lint
+      - name: NPM Lint
         run: npm run lint
-      - name: Build
+      - name: NPM Build
         run: npm run build
-
+      - name: Install bundler
+        uses: actions-rs/install@v0.1
+        with:
+          crate: tauri-bundler
+      - name: Bundle
+        run: npm run tauri build
