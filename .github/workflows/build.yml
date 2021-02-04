@@ -30,11 +30,11 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          components: rustfmt, clippy
+          components: rustfmt #, clippy
       - name: Rust lint
         run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
-      - name: Rust Clippy
-        run: cargo clippy --manifest-path src-tauri/Cargo.toml
+#      - name: Rust Clippy
+#        run: cargo clippy --manifest-path src-tauri/Cargo.toml
       - name: Rust build
         run: cargo build --manifest-path src-tauri/Cargo.toml
       - name: Rust test
