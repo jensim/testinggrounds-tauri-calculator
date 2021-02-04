@@ -24,6 +24,15 @@ jobs:
             PKG: src-tauri/target/release/bundle/dmg/calculator_*_x64.dmg
     steps:
       - uses: actions/checkout@v2
+      - name: Cache multiple paths
+        uses: actions/cache@v2
+        with:
+          path: |
+            **/node_modules
+            ~/.cargo/registry
+            ~/.cargo/git
+            src-tauri/target
+          key: ${{ matrix.os }}-${{ hashFiles('**/lockfiles') }}
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
