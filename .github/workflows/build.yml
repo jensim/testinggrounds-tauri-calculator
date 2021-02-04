@@ -5,8 +5,6 @@ name: Build
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -16,13 +14,13 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ macos-latest ]
-#        os: [ macos-latest, ubuntu-latest ]
+#        os: [ macos-latest ]
+        os: [ macos-latest, ubuntu-latest ]
         include:
           - os: macos-latest
             PKG: src-tauri/target/release/bundle/dmg/calculator_*_x64.dmg
-#          - os: ubuntu-latest
-#            PKG: src-tauri/target/release/bundle/dmg/calculator_*_x64.dmg
+          - os: ubuntu-latest
+            PKG: src-tauri/target/release/bundle/dmg/calculator_*_x64.dmg
     steps:
       - uses: actions/checkout@v2
       - name: Cargo cache
@@ -33,6 +31,17 @@ jobs:
             ~/.cargo/git
             src-tauri/target
           key: ${{ matrix.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+      - name: Install ubuntu packages
+        if: ${{matrix.os}} == 'ubuntu-latest'
+        run: |
+          sudo apt update && sudo apt install libwebkit2gtk-4.0-dev \
+            build-essential \
+            curl \
+            wget \
+            libssl-dev \
+            appmenu-gtk3-module \
+            libgtk-3-dev \
+            squashfs-tools
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -59,7 +68,9 @@ jobs:
       - name: Bundle
         run: npm run tauri:build
       - name: Zip package
-        run: zip -9 my-artifact.zip ${{matrix.PKG}}
+        run: |
+          ls -lah src-tauri/target/release/bundle/
+          zip -9 my-artifact.zip ${{matrix.PKG}}
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
