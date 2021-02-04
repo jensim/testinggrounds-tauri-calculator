@@ -16,15 +16,12 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ macos-latest ]
-        #os: [ macos-latest, ubuntu-latest ]
+        os: [ macos-latest, ubuntu-latest ]
         include:
           - os: macos-latest
-            env:
-              - PKG: src-tauri/target/release/bundle/dmg/calculator_*_x64.dmg
-#          - os: ubuntu-latest
-#            env:
-#              - PKG: src-tauri/target/release/bundle/dmg/calculator_*_x64.dmg
+            PKG: src-tauri/target/release/bundle/dmg/calculator_*_x64.dmg
+          - os: ubuntu-latest
+            PKG: src-tauri/target/release/bundle/dmg/calculator_*_x64.dmg
     steps:
       - uses: actions/checkout@v2
       - name: Install Rust
@@ -52,8 +49,8 @@ jobs:
           crate: tauri-bundler
       - name: Bundle
         run: npm run tauri:build
-      - name: Zip
-        run: zip -9 my-artifact.zip "$PKG"
+      - name: Zip package
+        run: zip -9 my-artifact.zip "${{matrix.PKG}}"
       - name: Create Release
         id: create_release
         uses: actions/create-release@v1
