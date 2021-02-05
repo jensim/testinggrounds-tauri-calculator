@@ -85,6 +85,7 @@ jobs:
       - name: Bundle
         run: npm run tauri:build
       - name: Tree view bundle
+        shell: bash
         run: tree ./src-tauri/target/release/bundle/
       - name: Zip package
         run: zip -9 my-artifact.zip ${{matrix.PKG}}
