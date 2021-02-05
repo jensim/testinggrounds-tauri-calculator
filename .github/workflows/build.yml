@@ -26,6 +26,8 @@ jobs:
           draft: true
           prerelease: true
   build:
+    name: Build release
+    needs: create_release
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
