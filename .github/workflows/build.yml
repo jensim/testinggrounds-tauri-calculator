@@ -13,14 +13,15 @@ jobs:
   build:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
 #        os: [ macos-latest ]
         os: [ macos-latest, ubuntu-latest ]
         include:
           - os: macos-latest
-            PKG: src-tauri/target/release/bundle/dmg/calculator_*_x64.dmg
+            PKG: src-tauri/target/release/bundle/dmg/calculator_*64.dmg
           - os: ubuntu-latest
-            PKG: src-tauri/target/release/bundle/deb/calculator_*_x64.deb
+            PKG: src-tauri/target/release/bundle/deb/calculator_*64.deb
     steps:
       - uses: actions/checkout@v2
       - name: Install ubuntu packages
