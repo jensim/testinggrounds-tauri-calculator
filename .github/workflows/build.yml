@@ -58,6 +58,7 @@ jobs:
         run: brew install tree
       - name: Install Windows packages
         if: matrix.os == 'windows'
+        shell: bash
         run: choco install tree
       - name: Install Rust
         uses: actions-rs/toolchain@v1
@@ -88,6 +89,7 @@ jobs:
         shell: bash
         run: tree ./src-tauri/target/release/bundle/
       - name: Zip package
+        shell: bash
         run: zip -9 my-artifact.zip ${{matrix.PKG}}
       - name: Upload Release Asset
         id: upload-release-asset
