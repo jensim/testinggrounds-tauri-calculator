@@ -20,7 +20,7 @@ jobs:
           - os: macos-latest
             PKG: src-tauri/target/release/bundle/dmg/calculator_*_x64.dmg
           - os: ubuntu-latest
-            PKG: src-tauri/target/release/bundle/dmg/calculator_*_x64.dmg
+            PKG: src-tauri/target/release/bundle/deb/calculator_*_x64.deb
     steps:
       - uses: actions/checkout@v2
       - name: Install ubuntu packages
@@ -59,6 +59,9 @@ jobs:
           crate: tauri-bundler
       - name: Bundle
         run: npm run tauri:build
+      - name: Tree view bundle
+        if: matrix.os == 'ubuntu-latest'
+        run: tree src-tauri/target/release/bundle/
       - name: Zip package
         run: |
           ls -lah src-tauri/target/release/bundle/
