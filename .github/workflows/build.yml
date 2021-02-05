@@ -32,12 +32,14 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ macos, ubuntu ]
+        os: [ macos, ubuntu, windows ]
         include:
           - os: macos
             PKG: src-tauri/target/release/bundle/dmg/calculator_*64.dmg
           - os: ubuntu
             PKG: src-tauri/target/release/bundle/deb/calculator_*_amd64.deb
+          - os: windows
+            PKG: src-tauri/target/release/bundle/msi/calculator_*64.msi
     steps:
       - uses: actions/checkout@v2
       - name: Install ubuntu packages
@@ -54,6 +56,9 @@ jobs:
       - name: Install MacOS packages
         if: matrix.os == 'macos'
         run: brew install tree
+      - name: Install Windows packages
+        if: matrix.os == 'windows'
+        run: choco install tree
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
