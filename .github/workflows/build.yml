@@ -11,21 +11,21 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
       matrix:
-#        os: [ macos-latest ]
-        os: [ macos-latest, ubuntu-latest ]
+#        os: [ macos ]
+        os: [ macos, ubuntu ]
         include:
-          - os: macos-latest
+          - os: macos
             PKG: src-tauri/target/release/bundle/dmg/calculator_*64.dmg
-          - os: ubuntu-latest
-            PKG: src-tauri/target/release/bundle/deb/calculator_*64.deb
+          - os: ubuntu
+            PKG: src-tauri/target/release/bundle/deb/calculator_*_amd64/calculator_*_amd64.deb
     steps:
       - uses: actions/checkout@v2
       - name: Install ubuntu packages
-        if: matrix.os == 'ubuntu-latest'
+        if: matrix.os == 'ubuntu'
         run: |
           sudo apt update && sudo apt install libwebkit2gtk-4.0-dev \
             build-essential \
@@ -35,6 +35,9 @@ jobs:
             appmenu-gtk3-module \
             libgtk-3-dev \
             squashfs-tools
+      - name: Install MacOS packages
+        if: matrix.os == 'macos'
+        run: brew install tree
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
@@ -45,9 +48,9 @@ jobs:
 #      - name: Rust Clippy
 #        run: cargo clippy --manifest-path src-tauri/Cargo.toml
       - name: Rust build
-        run: cargo build --manifest-path src-tauri/Cargo.toml
+        run: cargo build --manifest-path src-tauri/Cargo.toml --release
       - name: Rust test
-        run: cargo test --manifest-path src-tauri/Cargo.toml
+        run: cargo test --manifest-path src-tauri/Cargo.toml --release
       - name: NPM Install dependencies
         run: npm install
       - name: NPM Lint
@@ -61,7 +64,6 @@ jobs:
       - name: Bundle
         run: npm run tauri:build
       - name: Tree view bundle
-        if: matrix.os == 'ubuntu-latest'
         run: tree src-tauri/target/release/bundle/
       - name: Zip package
         run: |
