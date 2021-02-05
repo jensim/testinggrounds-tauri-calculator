@@ -35,7 +35,7 @@ jobs:
           - os: macos
             PKG: src-tauri/target/release/bundle/dmg/calculator_*64.dmg
           - os: ubuntu
-            PKG: src-tauri/target/release/bundle/deb/calculator_*_amd64/calculator_*_amd64.deb
+            PKG: src-tauri/target/release/bundle/deb/calculator_*_amd64.deb
     steps:
       - uses: actions/checkout@v2
       - name: Install ubuntu packages
