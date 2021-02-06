@@ -35,11 +35,14 @@ jobs:
         os: [ macos, ubuntu, windows ]
         include:
           - os: macos
-            PKG: src-tauri/target/release/bundle/dmg/calculator_*64.dmg
+            PKG: calculator_*64.dmg
+            PKG_DIR: dmg
           - os: ubuntu
-            PKG: src-tauri/target/release/bundle/deb/calculator_*_amd64.deb
+            PKG: calculator_*_amd64.deb
+            PKG_DIR: deb
           - os: windows
-            PKG: src-tauri/target/release/bundle/msi/calculator_*64.msi
+            PKG: calculator_*64.msi
+            PKG_DIR: msi
     steps:
       - uses: actions/checkout@v2
       - name: Install ubuntu packages
@@ -90,7 +93,10 @@ jobs:
         run: tree ./src-tauri/target/release/bundle/
       - name: Zip package
         shell: bash
-        run: zip -9 my-artifact.zip ${{matrix.PKG}}
+        run: |
+          cd src-tauri/target/release/bundle/${{matrix.PKG_DIR}}
+          zip -9 my-artifact.zip ${{matrix.PKG}}
+          cd ../../../../..
       - name: Upload Release Asset
         id: upload-release-asset
         uses: actions/upload-release-asset@v1
