@@ -59,7 +59,7 @@ jobs:
       - name: Install Windows packages
         if: matrix.os == 'windows'
         shell: bash
-        run: choco install tree
+        run: choco install tree zip
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
