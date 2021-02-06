@@ -96,6 +96,7 @@ jobs:
         run: |
           cd src-tauri/target/release/bundle/${{matrix.PKG_DIR}}
           zip -9 my-artifact.zip ${{matrix.PKG}}
+          mv my-artifact.zip ../../../../../
           cd ../../../../..
       - name: Upload Release Asset
         id: upload-release-asset
