@@ -57,13 +57,13 @@ jobs:
         os: [ macos, ubuntu, windows ]
         include:
           - os: macos
-            PKG: calculator_*64.dmg
+            PKG: "*_*64.dmg"
             PKG_DIR: dmg
           - os: ubuntu
-            PKG: calculator_*_amd64.deb
+            PKG: "*_*_amd64.deb"
             PKG_DIR: deb
           - os: windows
-            PKG: calculator_*64.msi
+            PKG: "*_*64.msi"
             PKG_DIR: msi
     steps:
       - uses: actions/checkout@v2
