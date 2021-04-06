@@ -17,7 +17,7 @@ jobs:
       - name: Install vue cli
         run: |
           sudo npm install -g @vue/cli
-          npx vue-cli-service build
+          npm install
       - name: Node Lint
         run: npm run lint
   lint_fmt:
