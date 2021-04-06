@@ -113,16 +113,12 @@ jobs:
           zip -9 my-artifact.zip ${{matrix.PKG}}
           mv my-artifact.zip ../../../../../${{ matrix.os }}.zip
           cd ../../../../..
-      - name: Upload Release Asset
-        id: upload-release-asset
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2.2.2
         with:
-          upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_path: ./${{ matrix.os }}.zip
-          asset_name: ${{ matrix.os }}
-          asset_content_type: application/zip
+          name: ${{ matrix.os }}
+          path: ${{ matrix.os }}.zip
+          retention-days: 5
 
   releaseDraft:
     name: Release Draft
@@ -130,21 +126,11 @@ jobs:
     needs: [ build ]
     steps:
       # Remove old release drafts by using the curl request for the available releases with draft flag
-      - name: Download Ubuntu Artifact
-        id: download_ubuntu
+      - name: Download Artifacts
+        id: download_artifacts
         uses: actions/download-artifact@v2
         with:
-          name: ubuntu
-      - name: Download MacOS Artifact
-        id: download_macos
-        uses: actions/download-artifact@v2
-        with:
-          name: macos
-      - name: Download Windows Artifact
-        id: download_windows
-        uses: actions/download-artifact@v2
-        with:
-          name: windows
+          path: /tmp/artifacts
       - name: Create release body
         run: |
           echo "# v${{ github.run_number }}" > '/tmp/RELEASE_BODY.md'
@@ -153,7 +139,7 @@ jobs:
           echo "|-----|-----|" >> '/tmp/RELEASE_BODY.md'
           for OS in macos ubuntu windows ; do
             FILE_NAME="${OS}.zip"
-            FILE_PATH="${OS}/${OS}.zip"
+            FILE_PATH="/tmp/artifacts/${OS}/${OS}.zip"
             CHECKSUM="$(shasum -a 256 "${FILE_PATH}" | sed 's| .*||')"
             echo "| ${FILE_NAME} | ${CHECKSUM} |" >> '/tmp/RELEASE_BODY.md'
           done
