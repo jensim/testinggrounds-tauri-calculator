@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: Install vue cli
+        run: npm install -g @vue/cli
       - name: Node Lint
         run: npm run lint
   lint_fmt:
@@ -30,6 +32,8 @@ jobs:
   lint_clippy:
     runs-on: ubuntu-latest
     steps:
+      - name: Install deps
+        run: sudo apt-get install libdbus-glib-1-dev
       - name: Install Rust
         uses: actions-rs/toolchain@v1
         with:
