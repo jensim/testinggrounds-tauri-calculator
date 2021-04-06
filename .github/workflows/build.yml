@@ -24,7 +24,7 @@ jobs:
           toolchain: stable
           components: rustfmt
       - name: Rust format
-        run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
+        run: cargo fmt --manifest-path ./src-tauri/Cargo.toml -- --check
   lint_clippy:
     runs-on: ubuntu-latest
     steps:
@@ -34,7 +34,7 @@ jobs:
           toolchain: stable
           components: clippy
       - name: Rust clippy
-        run: cargo clippy --manifest-path src-tauri/Cargo.toml
+        run: cargo clippy --manifest-path ./src-tauri/Cargo.toml
   build:
     name: Build release
     needs:
