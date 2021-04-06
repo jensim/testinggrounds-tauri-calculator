@@ -10,24 +10,37 @@ on:
   workflow_dispatch:
 
 jobs:
-  create_release:
+  lint_node:
     runs-on: ubuntu-latest
-    outputs:
-      upload_url: ${{ steps.create_release.outputs.upload_url }}
     steps:
-      - name: Create Release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Node Lint
+        run: npm run lint
+  lint_fmt:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
         with:
-          tag_name: v${{ github.run_number }}
-          release_name: v${{ github.run_number }}
-          draft: true
-          prerelease: true
+          toolchain: stable
+          components: rustfmt
+      - name: Rust format
+        run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
+  lint_clippy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          components: clippy
+      - name: Rust clippy
+        run: cargo clippy --manifest-path src-tauri/Cargo.toml
   build:
     name: Build release
-    needs: create_release
+    needs:
+      - lint_node
+      - lint_fmt
+      - lint_clippy
     runs-on: ${{ matrix.os }}-latest
     strategy:
       fail-fast: false
@@ -67,19 +80,12 @@ jobs:
         uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
-          components: rustfmt #, clippy
-      - name: Rust lint
-        run: cargo fmt --manifest-path src-tauri/Cargo.toml -- --check
-#      - name: Rust Clippy
-#        run: cargo clippy --manifest-path src-tauri/Cargo.toml
       - name: Rust build
         run: cargo build --manifest-path src-tauri/Cargo.toml --release
       - name: Rust test
         run: cargo test --manifest-path src-tauri/Cargo.toml --release
       - name: NPM Install dependencies
         run: npm install
-      - name: NPM Lint
-        run: npm run lint
       - name: NPM Build
         run: npm run build
       - name: Install bundler
@@ -94,9 +100,9 @@ jobs:
       - name: Zip package
         shell: bash
         run: |
-          cd src-tauri/target/release/bundle/${{matrix.PKG_DIR}}
+          cd src-tauri/target/release/bundle/${{ matrix.PKG_DIR }}
           zip -9 my-artifact.zip ${{matrix.PKG}}
-          mv my-artifact.zip ../../../../../
+          mv my-artifact.zip ../../../../../${{ matrix.os }}.zip
           cd ../../../../..
       - name: Upload Release Asset
         id: upload-release-asset
@@ -105,6 +111,90 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ needs.create_release.outputs.upload_url }}
-          asset_path: ./my-artifact.zip
-          asset_name: ${{ matrix.os }}.zip
+          asset_path: ./${{ matrix.os }}.zip
+          asset_name: ${{ matrix.os }}
+          asset_content_type: application/zip
+
+  releaseDraft:
+    name: Release Draft
+    runs-on: ubuntu-latest
+    needs: [ build ]
+    steps:
+      # Remove old release drafts by using the curl request for the available releases with draft flag
+      - name: Download Ubuntu Artifact
+        id: download_ubuntu
+        uses: actions/download-artifact@v2
+        with:
+          name: ubuntu
+      - name: Download MacOS Artifact
+        id: download_macos
+        uses: actions/download-artifact@v2
+        with:
+          name: macos
+      - name: Download Windows Artifact
+        id: download_windows
+        uses: actions/download-artifact@v2
+        with:
+          name: windows
+      - name: Create release body
+        run: |
+          echo "# v${{ github.run_number }}" > '/tmp/RELEASE_BODY.md'
+          echo "" >> '/tmp/RELEASE_BODY.md'
+          echo "| File | checksum |" >> '/tmp/RELEASE_BODY.md'
+          echo "|-----|-----|" >> '/tmp/RELEASE_BODY.md'
+          for OS in macos ubuntu windows ; do
+            FILE_NAME="${OS}.zip"
+            FILE_PATH="${OS}/${OS}.zip"
+            CHECKSUM="$(shasum -a 256 "${FILE_PATH}" | sed 's| .*||')"
+            echo "| ${FILE_NAME} | ${CHECKSUM} |" >> '/tmp/RELEASE_BODY.md'
+          done
+      - name: Remove Old Release Drafts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          curl -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/$GITHUB_REPOSITORY/releases \
+            | tr '\r\n' ' ' \
+            | jq '.[] | select(.draft == true) | .id' \
+            | xargs -I '{}' \
+          curl -X DELETE -H "Authorization: Bearer $GITHUB_TOKEN" https://api.github.com/repos/$GITHUB_REPOSITORY/releases/{}
+      - name: Create Release Draft
+        id: createDraft
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ github.run_number }}
+          release_name: v${{ github.run_number }}
+          body_path: /tmp/RELEASE_BODY.md
+          draft: true
+      # Upload artifacts
+      - name: Upload Ubuntu Asset
+        id: upload-ubuntu-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.createDraft.outputs.upload_url }}
+          asset_path: ubuntu/ubuntu.zip
+          asset_name: ubuntu.zip
+          asset_content_type: application/zip
+      - name: Upload MacOS Asset
+        id: upload-macos-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.createDraft.outputs.upload_url }}
+          asset_path: macos/macos.zip
+          asset_name: macos.zip
+          asset_content_type: application/zip
+      - name: Upload Windows Asset
+        id: upload-windows-asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.createDraft.outputs.upload_url }}
+          asset_path: windows/windows.zip
+          asset_name: windows.zip
           asset_content_type: application/zip
