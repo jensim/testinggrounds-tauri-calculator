@@ -13,6 +13,7 @@ jobs:
   lint_node:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v2
       - name: Node Lint
         run: npm run lint
   lint_fmt:
@@ -23,6 +24,7 @@ jobs:
         with:
           toolchain: stable
           components: rustfmt
+      - uses: actions/checkout@v2
       - name: Rust format
         run: cargo fmt --manifest-path ./src-tauri/Cargo.toml -- --check
   lint_clippy:
@@ -33,6 +35,7 @@ jobs:
         with:
           toolchain: stable
           components: clippy
+      - uses: actions/checkout@v2
       - name: Rust clippy
         run: cargo clippy --manifest-path ./src-tauri/Cargo.toml
   build:
