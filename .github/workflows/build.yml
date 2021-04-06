@@ -134,7 +134,7 @@ jobs:
           path: /tmp/artifacts
       - name: Create release body
         run: |
-          echo "# v${{ github.run_number }}" > '/tmp/RELEASE_BODY.md'
+          echo "# build-${{ github.run_number }}" > '/tmp/RELEASE_BODY.md'
           echo "" >> '/tmp/RELEASE_BODY.md'
           echo "| File | checksum |" >> '/tmp/RELEASE_BODY.md'
           echo "|-----|-----|" >> '/tmp/RELEASE_BODY.md'
@@ -159,8 +159,8 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          tag_name: v${{ github.run_number }}
-          release_name: v${{ github.run_number }}
+          tag_name: build-${{ github.run_number }}
+          release_name: build-${{ github.run_number }}
           body_path: /tmp/RELEASE_BODY.md
           draft: true
       # Upload artifacts
