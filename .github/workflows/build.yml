@@ -119,6 +119,7 @@ jobs:
           name: ${{ matrix.os }}
           path: ${{ matrix.os }}.zip
           retention-days: 5
+          if-no-files-found: error
 
   releaseDraft:
     name: Release Draft
@@ -170,7 +171,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.createDraft.outputs.upload_url }}
-          asset_path: ubuntu/ubuntu.zip
+          asset_path: /tmp/artifacts/ubuntu/ubuntu.zip
           asset_name: ubuntu.zip
           asset_content_type: application/zip
       - name: Upload MacOS Asset
@@ -180,7 +181,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.createDraft.outputs.upload_url }}
-          asset_path: macos/macos.zip
+          asset_path: /tmp/artifacts/macos/macos.zip
           asset_name: macos.zip
           asset_content_type: application/zip
       - name: Upload Windows Asset
@@ -190,6 +191,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.createDraft.outputs.upload_url }}
-          asset_path: windows/windows.zip
+          asset_path: /tmp/artifacts/windows/windows.zip
           asset_name: windows.zip
           asset_content_type: application/zip
